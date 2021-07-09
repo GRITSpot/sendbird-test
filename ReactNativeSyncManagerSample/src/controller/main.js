@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { FlatList } from 'react-native-gesture-handler';
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
-import firebase from 'react-native-firebase';
+import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging'
 
 import SendBird from 'sendbird';
 import SendBirdSyncManager from 'sendbird-syncmanager';
@@ -35,8 +35,7 @@ export class MainController extends React.Component {
                   AsyncStorage.removeItem('currentUser', err => {
                     SendBirdSyncManager.getInstance().reset();
                     const sb = SendBird.getInstance();
-                    firebase
-                      .messaging()
+                    messaging()
                       .getToken()
                       .then(fcmToken => {
                         if (fcmToken) {
@@ -118,8 +117,7 @@ export class MainController extends React.Component {
     const sb = SendBird.getInstance();
     sb.connect(userId, (_, err) => {
       if (!err) {
-        firebase
-          .messaging()
+        messaging()
           .getToken()
           .then(fcmToken => {
             if (fcmToken) {
@@ -129,13 +127,11 @@ export class MainController extends React.Component {
       }
     });
 
-    firebase
-      .messaging()
+    messaging()
       .hasPermission()
       .then(enabled => {
-        if (!enabled) {
-          firebase
-            .messaging()
+        if (!enabled !== FirebaseMessagingTypes.AuthorizationStatus.AUTHORIZED) {
+          messaging()
             .requestPermission()
             .then(() => {
               this.addPushNotificationListener();
@@ -149,8 +145,7 @@ export class MainController extends React.Component {
       });
     this.addPushTokenRefreshListener();
 
-    this.onPushNotificationOpened = firebase.notifications().onNotificationOpened(notificationOpen => {
-      firebase.notifications().removeAllDeliveredNotifications();
+    this.onPushNotificationOpened = messaging().onMessage(notificationOpen => {
       if (notificationOpen) {
         const notification = notificationOpen.notification;
         if (notification.data && notification.data.channel && notification.data.channel.channel_url) {
@@ -162,7 +157,6 @@ export class MainController extends React.Component {
         }
       }
     });
-    firebase.notifications().removeAllDeliveredNotifications();
     const connectionHandler = new sb.ConnectionHandler();
     connectionHandler.onReconnectFailed = () => {
       sb.reconnect();
@@ -182,8 +176,7 @@ export class MainController extends React.Component {
     options.automaticMessageResendRetryCount = 4;
     SendBirdSyncManager.setup(userId, options, err => {
       if (!err) {
-        firebase
-          .notifications()
+        messaging()
           .getInitialNotification()
           .then(notificationOpen => {
             if (notificationOpen) {
@@ -237,12 +230,12 @@ export class MainController extends React.Component {
     });
   }
   addPushTokenRefreshListener() {
-    this.onTokenRefreshListener = firebase.messaging().onTokenRefresh(fcmToken => {
+    this.onTokenRefreshListener = messaging().onTokenRefresh(fcmToken => {
       this.registerPushToken(fcmToken);
     });
   }
   addPushNotificationListener() {
-    this.onPushNotificationListener = firebase.messaging().onMessage(message => {
+    this.onPushNotificationListener = messaging().onMessage(message => {
       this.handlePushNotification(message);
     });
   }
@@ -254,9 +247,7 @@ export class MainController extends React.Component {
     if (Platform.OS === 'ios') {
       // WARNING! FCM token doesn't work in request to APNs.
       // Use APNs token here instead.
-      firebase
-        .messaging()
-        .ios.getAPNSToken()
+      messaging().getAPNSToken()
         .then(token => {
           sb.registerAPNSPushTokenForCurrentUser(token, (result, err) => {
             if (err) {

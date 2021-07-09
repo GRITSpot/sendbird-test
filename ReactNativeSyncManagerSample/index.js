@@ -5,8 +5,20 @@
 import { AppRegistry } from 'react-native';
 import App from './App';
 import { name as appName } from './app.json';
-import backgroundPush from './src/push';
+import messaging from '@react-native-firebase/messaging'
 import 'react-native-gesture-handler';
 
-AppRegistry.registerComponent(appName, () => App);
-AppRegistry.registerHeadlessTask('RNFirebaseBackgroundMessage', () => backgroundPush);
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+  console.log('Message handled in the background!', remoteMessage);
+});
+
+function HeadlessCheck({ isHeadless }) {
+  if (isHeadless) {
+    // App has been launched in the background by iOS, ignore
+    return null;
+  }
+
+  return <App />;
+}
+
+AppRegistry.registerComponent(appName, () => HeadlessCheck);

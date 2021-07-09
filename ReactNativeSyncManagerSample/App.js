@@ -42,12 +42,6 @@ export default class App extends React.Component {
     SendBirdSyncManager.useReactNative(AsyncStorage);
   }
   componentDidMount() {
-    const channel = new firebase.notifications.Android.Channel(
-      'com.reactnativesyncmanagersample.default_channel_id',
-      'React Native SyncManager sample',
-      firebase.notifications.Android.Importance.Max
-    ).setDescription('React Native SyncManager sample notification channel');
-    firebase.notifications().android.createChannel(channel);
     AppState.addEventListener('change', this.handleAppStateChange);
   }
   componentWillUnmount() {
