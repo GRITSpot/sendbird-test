@@ -1,0 +1,14 @@
+{
+  "parser": "babel-ts",
+  "trailingComma": "all",
+  "tabWidth": 2,
+  "semi": false,
+  "singleQuote": true,
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "jsxSingleQuote": true,
+  "jsxBracketSameLine": false,
+  "printWidth": 100,
+  "importOrder": ["^[~/]", "^[./]"],
+  "importOrderSeparation": true
+}
