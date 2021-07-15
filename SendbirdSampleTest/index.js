@@ -1,9 +1,18 @@
 /**
  * @format
  */
+import 'reflect-metadata'
+import React from 'react'
+import { AppRegistry } from 'react-native'
+import App from './App'
+import { name as appName } from './app.json'
+import { container, containerModule } from '~/services/servicesContainer'
+import { ServiceProvider } from '~/services/serviceProvider'
 
-import {AppRegistry} from 'react-native';
-import App from './App';
-import {name as appName} from './app.json';
+container.load(containerModule)
 
-AppRegistry.registerComponent(appName, () => App);
+AppRegistry.registerComponent(appName, () => (props) => (
+  <ServiceProvider container={container}>
+    <App {...props} />
+  </ServiceProvider>
+))
