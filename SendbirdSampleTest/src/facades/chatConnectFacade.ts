@@ -2,10 +2,7 @@ import { useRef, useEffect, useState } from 'react'
 import { AppStateStatus, AppState } from 'react-native'
 import { Subscription } from 'rxjs'
 
-import chatErrors from '~/const/chatErrors'
 import { IChatService, ChatServiceId } from '~/services/chatService'
-import handleError from '~/services/errorHandler'
-import { INotificationService, NotificationServiceId } from '~/services/notifications'
 import { useInjection } from '~/services/serviceProvider'
 import { ISyncManagerService, SyncManagerServiceId } from '~/services/syncManagerService'
 import { ChannelHandlerActionMap } from '~/types/actionHandlerMap'
@@ -36,18 +33,19 @@ export const useSetChatUserDataAndConnect = () => {
 export const useChatDisconnectAndClear = () => {
   const chatService = useRef(useInjection<IChatService>(ChatServiceId)).current
   const syncService = useRef(useInjection<ISyncManagerService>(SyncManagerServiceId)).current
-  const notificationService = useRef(useInjection<INotificationService>(NotificationServiceId))
-    .current
+  // const notificationService = useRef(
+  //   useInjection<INotificationService>(NotificationServiceId),
+  // ).current
 
   const disconnectAndClear = async () => {
-    try {
-      const token = await notificationService.getNotificationsTokenByPlatform()
-      if (token) {
-        await chatService.unregisterPushToken(token)
-      }
-    } catch (error) {
-      handleError(chatErrors.CHAT_PUSH_TOKEN_UNREGISTER_FAILED, error)
-    }
+    // try {
+    //   const token = await notificationService.getNotificationsTokenByPlatform()
+    //   if (token) {
+    //     await chatService.unregisterPushToken(token)
+    //   }
+    // } catch (error) {
+    //   console.log(error)
+    // }
     syncService.pauseSync()
     syncService.reset()
     chatService.disconnectUser()
@@ -55,25 +53,6 @@ export const useChatDisconnectAndClear = () => {
   }
 
   return { disconnectAndClear }
-}
-
-export const useChannelGetter = () => {
-  const service = useRef(useInjection<IChatService>(ChatServiceId)).current
-
-  const getChannelByIds = (userIds: string[]) => {
-    return service.fetchChannelByIds(userIds)
-  }
-
-  const createUsersAndGetChannelByIds = async (userIds: string[]) => {
-    await service.getOrCreateUsers(userIds)
-    return service.fetchChannelByIds(userIds)
-  }
-
-  const getChannelByUrl = (channelUrl: string, isBroadcast: boolean) => {
-    return service.fetchChannelByUrl(channelUrl, isBroadcast)
-  }
-
-  return { getChannelByIds, createUsersAndGetChannelByIds, getChannelByUrl }
 }
 
 export const useChannelHandler = () => {

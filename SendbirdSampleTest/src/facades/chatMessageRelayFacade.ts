@@ -8,17 +8,12 @@ import { ISyncManagerService, SyncManagerServiceId } from '~/services/syncManage
 import { ActionType } from '~/types/actionHandlerMap'
 import { findMessageIndex } from '~/helpers/findMessageIndex'
 import { getMessageIndex } from '~/helpers/getMessageIndex'
-import { ChatMemberUserData, UserData } from '~/types/user'
-import { TrainerRaw } from '~/types/trainer'
 import getParsedChatMemberUser from '~/helpers/getParsedChatUserMember'
 
 type MessageRelayOptions = {
-  currentUserId: string
   isBroadcast?: boolean
-  passedParticipant?: UserData | TrainerRaw
   passedChannel?: SendBird.GroupChannel
   passedChannelUrl?: string
-  reportMessageSent: (text: string, channel?: SendBird.GroupChannel) => void
 }
 
 export const useMessageRelay = (options: MessageRelayOptions) => {
@@ -36,7 +31,8 @@ export const useMessageRelay = (options: MessageRelayOptions) => {
     Array<SendBird.UserMessage | SendBird.FileMessage | SendBird.AdminMessage>
   >([])
   const [isLoading, setIsLoading] = useState(true)
-  const [participant, setParticipant] = useState<ChatMemberUserData | null>(null)
+  const [participant, setParticipant] = useState<any | null>(null)
+  const [currentUser, setCurrentUser] = useState<any | null>(null)
   const fetchIsInProgress = useRef(false)
   const currentAppState = useRef('active')
 
@@ -56,10 +52,6 @@ export const useMessageRelay = (options: MessageRelayOptions) => {
     }
   }
 
-  const getOrCreateUsers = (userIds: string[]) => {
-    return chatService.getOrCreateUsers(userIds)
-  }
-
   const prepare = async () => {
     setIsLoading(true)
 
@@ -76,21 +68,19 @@ export const useMessageRelay = (options: MessageRelayOptions) => {
         options.passedChannelUrl,
         options.isBroadcast || false,
       )
-    } else if (options.passedParticipant) {
-      const participantId = get(options.passedParticipant, 'user_id', options.passedParticipant.id)
-      // Create the participant user with the backend before creating the channel
-      await getOrCreateUsers([participantId])
-      channel.current = await chatService.fetchChannelByIds([options.currentUserId, participantId])
     } else {
       setIsLoading(false)
       return
     }
 
-    const otherParticipant = channel.current.members.find(
-      (m) => m.userId !== options.currentUserId && m.role !== 'operator',
-    )
+    const otherParticipant = chatService.getOtherParticipantFromChannel(channel.current)
     if (otherParticipant) {
       setParticipant(getParsedChatMemberUser(otherParticipant))
+    }
+
+    const currentUser = chatService.getCurrentUserFromChannel(channel.current)
+    if (currentUser) {
+      setCurrentUser(getParsedChatMemberUser(currentUser))
     }
 
     const addMessages = (
@@ -243,7 +233,6 @@ export const useMessageRelay = (options: MessageRelayOptions) => {
     if (messageCollection.current) {
       messageCollection.current.appendMessage(pendingMessage)
     }
-    options.reportMessageSent(text, channel.current)
   }
 
   const resendFailedMessage = (
@@ -262,10 +251,10 @@ export const useMessageRelay = (options: MessageRelayOptions) => {
   return {
     messages,
     participant,
+    currentUser,
     isLoading,
     sendMessage,
     resendFailedMessage,
     loadPrevious,
-    getOrCreateUsers,
   }
 }
