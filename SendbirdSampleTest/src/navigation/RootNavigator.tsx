@@ -2,14 +2,17 @@ import React from 'react'
 import createAnimatedSwitchNavigator from 'react-navigation-animated-switch'
 import { Transition } from 'react-native-reanimated'
 import { createAppContainer } from 'react-navigation'
+
 import LoaderScreen from '~/screens/LoaderScreen'
-import PlaceholderScreen from '~/screens/PlaceholderScreen'
+import ChatList from '~/screens/ChatListScreen/ChatListController'
+import Chat from '~/screens/ChatScreen/ChatController'
 
 export default createAppContainer(
   createAnimatedSwitchNavigator(
     {
       LoaderScreen,
-      PlaceholderScreen,
+      ChatList,
+      Chat,
     },
     {
       initialRouteName: 'LoaderScreen',
