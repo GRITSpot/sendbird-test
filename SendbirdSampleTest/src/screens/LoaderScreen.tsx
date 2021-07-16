@@ -17,7 +17,7 @@ const LoaderScreenController: React.FC<NavigationStackScreenProps> = (props) => 
   const loadData = async () => {
     await getChatUserDataAndConnect()
 
-    props.navigation.navigate('ChatList')
+    props.navigation.navigate('ChatStack')
   }
 
   return (
