@@ -105,7 +105,7 @@ export class ChatService implements IChatService {
   public setupConnectAndCreateAppStateListener = async () => {
     await this.connectUser()
     this._syncManagerService.setupConnectionHandler()
-    this._syncManagerService.setupSyncManager()
+    await this._syncManagerService.setupSyncManager()
     AppState.addEventListener('change', this.handleAppStateChange)
   }
 

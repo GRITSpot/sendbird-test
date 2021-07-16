@@ -1,15 +1,15 @@
+import { AppState, AppStateStatus } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
-import { inject, injectable } from 'inversify'
+import { injectable } from 'inversify'
 import SendBird from 'sendbird'
 import SendBirdSyncManager from 'sendbird-syncmanager'
 import env from 'react-native-config'
 
 import { ActionHandlerMap } from '~/types/actionHandlerMap'
-import { AppState, AppStateStatus } from 'react-native'
 
 export interface ISyncManagerService {
   init: (sb: SendBird.SendBirdInstance) => Promise<void>
-  setupSyncManager: () => void
+  setupSyncManager: () => Promise<void>
   setupConnectionHandler: () => void
   createChannelCollection: (handlers: ActionHandlerMap) => // @ts-expect-error
   Promise<SendBirdSyncManager.ChannelCollection>
@@ -45,7 +45,7 @@ export class SyncManagerService implements ISyncManagerService {
       options.maxFailedMessageCountPerChannel = 50
       options.automaticMessageResendRetryCount = 4
 
-      SendBirdSyncManager.setup(env.SENDBIRD_USER_ID, options)
+      await SendBirdSyncManager.setup(env.SENDBIRD_USER_ID, options)
     } catch (e) {
       console.log(e)
     }
@@ -67,7 +67,7 @@ export class SyncManagerService implements ISyncManagerService {
     AppState.addEventListener('change', this.handleAppStateChange)
   }
 
-  public async createChannelCollection(handlers: ActionHandlerMap) {
+  public createChannelCollection = async (handlers: ActionHandlerMap) => {
     const query = SendBirdSyncManager.sendBird.GroupChannel.createMyGroupChannelListQuery()
     query.limit = 50
     query.includeEmpty = false
