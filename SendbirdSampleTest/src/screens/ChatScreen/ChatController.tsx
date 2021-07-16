@@ -34,7 +34,7 @@ const ChatController: React.FC<NavigationStackScreenProps<NavigationParams>> = (
   } = useMessageRelay(messageRelayOptions)
 
   const onBackPress = () => {
-    props.navigation.pop()
+    props.navigation.goBack()
   }
 
   const sendUserMessage = (text: string) => {
