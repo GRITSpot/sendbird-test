@@ -1,20 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2f3b9f4e-6d0e-4124-8a06-8ebf401f47ad" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../SendbirdSampleTest/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../SendbirdSampleTest/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../SendbirdSampleTest/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../SendbirdSampleTest/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../SendbirdSampleTest/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../../SendbirdSampleTest/ios/Podfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../SendbirdSampleTest/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../SendbirdSampleTest/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../SendbirdSampleTest/src/screens/LoaderScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../SendbirdSampleTest/src/screens/LoaderScreen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../SendbirdSampleTest/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../../SendbirdSampleTest/yarn.lock" afterDir="false" />
-    </list>
+    <list default="true" id="2f3b9f4e-6d0e-4124-8a06-8ebf401f47ad" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="Pixel_2_API_28" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -115,5 +107,15 @@
       <updated>1625848804352</updated>
     </task>
     <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="612" y="174" key="#app" timestamp="1626449303373">
+      <screen x="0" y="25" width="1792" height="1025" />
+    </state>
+    <state x="612" y="174" key="#app/0.25.1792.1025@0.25.1792.1025" timestamp="1626449303373" />
+    <state x="112" y="125" width="1592" height="825" key="com.android.tools.idea.avdmanager.AvdListDialog" timestamp="1626449317248">
+      <screen x="0" y="25" width="1792" height="1025" />
+    </state>
+    <state x="112" y="125" width="1592" height="825" key="com.android.tools.idea.avdmanager.AvdListDialog/0.25.1792.1025@0.25.1792.1025" timestamp="1626449317248" />
   </component>
 </project>
