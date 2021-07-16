@@ -1,6 +1,4 @@
-import { get } from 'lodash'
 import React from 'react'
-import { useTranslation } from 'react-i18next'
 import { View, Text, StyleSheet, StatusBar } from 'react-native'
 import FastImage from 'react-native-fast-image'
 
@@ -29,8 +27,6 @@ type Props = {
 }
 
 const ChatView = (props: Props) => {
-  const { t } = useTranslation()
-
   const participantProfilePicture = props.otherParticipant
     ? props.otherParticipant.profilePicture
     : null
@@ -40,10 +36,8 @@ const ChatView = (props: Props) => {
     return (
       <EmptyScreen
         emojiSource={images.wave}
-        title={t('emptyState_customerChat_title', { name: props.user.nickname })}
-        description={t('emptyState_customerChat_description', {
-          coachName: participantNickname,
-        })}
+        title={`emptyState_customerChat_title: ${props.user?.nickname}`}
+        description={`emptyState_customerChat_description: ${participantNickname}`}
       />
     )
   }
