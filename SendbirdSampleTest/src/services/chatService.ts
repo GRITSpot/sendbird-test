@@ -6,12 +6,10 @@ import { takeWhile } from 'rxjs/operators'
 import { FirebaseMessagingTypes } from '@react-native-firebase/messaging'
 import env from 'react-native-config'
 
-import { ChatUsersResponse } from '~/types/chat'
 import chatErrors from '~/const/chatErrors'
 import { strigifySendbirdMessage } from '~/helpers/stringifySendbirdMessage'
-import { getOrCreateChatUsers } from '~/api/chat'
 import { ChannelHandlerActionMap } from '~/types/actionHandlerMap'
-import { ISyncManagerService, SyncManagerServiceId } from './syncManagerService'
+import { ISyncManagerService, SyncManagerServiceId } from '~/services/syncManagerService'
 
 const USER_EVENT_HANDLER = 'user_event_handler'
 
@@ -22,12 +20,13 @@ export interface IChatService {
   registerPushToken: (token: string) => Promise<string>
   unregisterPushToken: (token: string) => Promise<any>
   setupConnectAndCreateAppStateListener: () => Promise<void>
-  setupChatUserData: () => Promise<void>
   connectUser: () => Promise<void>
   addCallbackToExecuteAfterConnect: (
     callback: (...args: any[]) => void,
     callbackArgs?: any[],
   ) => void
+  getCurrentUserFromChannel: (channel: SendBird.GroupChannel) => any
+  getOtherParticipantFromChannel: (channel: SendBird.GroupChannel) => any
   fetchChannelByIds: (userIds: string[]) => Promise<SendBird.GroupChannel>
   fetchChannelByUrl: (channelUrl: string, isBroadcast: boolean) => Promise<SendBird.GroupChannel>
   fetchUnreadCount: () => Promise<number | undefined>
@@ -38,8 +37,6 @@ export interface IChatService {
   removeChannelHandler: (handlerId: string) => void
   disconnectUser: () => void
   clearData: () => void
-  getOrCreateUsers: (userIds: string[]) => Promise<ChatUsersResponse>
-  sendBroadcastMessageToEvent: (eventId: string, message: string) => void
   setupMessageParams: ({
     text,
     customType,
@@ -55,6 +52,7 @@ export interface IChatService {
 export class ChatService implements IChatService {
   private _appState: AppStateStatus = 'active'
   private readonly _sb: SendBird.SendBirdInstance
+  private readonly _syncManagerService: ISyncManagerService
 
   private readonly _totalUnreadMessagesCount: BehaviorSubject<number> = new BehaviorSubject<number>(
     0,
@@ -91,9 +89,8 @@ export class ChatService implements IChatService {
     })
   }
 
-  constructor(
-    @inject(SyncManagerServiceId) private readonly _syncManagerService: ISyncManagerService,
-  ) {
+  constructor(@inject(SyncManagerServiceId) syncManagerService: ISyncManagerService) {
+    this._syncManagerService = syncManagerService
     this._sb = new SendBird({ appId: env.SENDBIRD_APP_ID })
     this._syncManagerService.init(this._sb)
 
@@ -112,14 +109,12 @@ export class ChatService implements IChatService {
     AppState.addEventListener('change', this.handleAppStateChange)
   }
 
-  public async getOrCreateUsers(userIds: string[]) {
-    try {
-      const { data: users } = await getOrCreateChatUsers(userIds, env.BEAT_81_USER_TOKEN)
-      return users
-    } catch (e) {
-      console.log(chatErrors.CHAT_GET_CREATE_USER_FAILED, e)
-      return null
-    }
+  public getCurrentUserFromChannel = (channel: SendBird.GroupChannel) => {
+    return channel.members.find((m) => m.userId === this._userId)
+  }
+
+  public getOtherParticipantFromChannel = (channel: SendBird.GroupChannel) => {
+    return channel.members.find((m) => m.userId !== this._userId && m.role !== 'operator')
   }
 
   public registerPushToken(token: string) {

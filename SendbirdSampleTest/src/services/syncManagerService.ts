@@ -2,24 +2,18 @@ import AsyncStorage from '@react-native-community/async-storage'
 import { inject, injectable } from 'inversify'
 import SendBird from 'sendbird'
 import SendBirdSyncManager from 'sendbird-syncmanager'
+import env from 'react-native-config'
 
 import { ActionHandlerMap } from '~/types/actionHandlerMap'
-import chatErrors from '~/const/chatErrors'
-import handleError from './errorHandler'
-import { ISessionService, SessionServiceId } from './session'
 import { AppState, AppStateStatus } from 'react-native'
 
 export interface ISyncManagerService {
   init: (sb: SendBird.SendBirdInstance) => Promise<void>
   setupSyncManager: () => void
   setupConnectionHandler: () => void
-  createChannelCollection: (
-    handlers: ActionHandlerMap,
-  ) => // @ts-expect-error
+  createChannelCollection: (handlers: ActionHandlerMap) => // @ts-expect-error
   Promise<SendBirdSyncManager.ChannelCollection>
-  getExistingChannelsForCoach: (
-    userIds: Array<string>,
-  ) => // @ts-expect-error
+  getExistingChannelsForCoach: (userIds: Array<string>) => // @ts-expect-error
   Promise<SendBirdSyncManager.Channel>
   createMessageCollection: (
     channel: SendBird.GroupChannel,
@@ -35,11 +29,8 @@ export interface ISyncManagerService {
 export class SyncManagerService implements ISyncManagerService {
   private _appState: AppStateStatus = 'active'
 
-  constructor(@inject(SessionServiceId) private readonly _sessionService: ISessionService) {}
-
   public init = async (sb: SendBird.SendBirdInstance) => {
     // SendBirdSyncManager.loggerLevel = 98765
-    //@ts-expect-error
     SendBirdSyncManager.sendBird = sb
     SendBirdSyncManager.useReactNative(AsyncStorage)
   }
@@ -54,9 +45,9 @@ export class SyncManagerService implements ISyncManagerService {
       options.maxFailedMessageCountPerChannel = 50
       options.automaticMessageResendRetryCount = 4
 
-      SendBirdSyncManager.setup(this._sessionService.userId!, options)
+      SendBirdSyncManager.setup(env.SENDBIRD_USER_ID, options)
     } catch (e) {
-      handleError(chatErrors.CHAT_USER_UPDATE_FAILED, e)
+      console.log(e)
     }
   }
 
@@ -115,9 +106,8 @@ export class SyncManagerService implements ISyncManagerService {
     const filters = {}
     const viewpointTimestamp = Date.now()
     const collection = new SendBirdSyncManager.MessageCollection(
-      // @ts-expect-error
       channel,
-      //@ts-ignore
+      //@ts-expect-error
       filters,
       viewpointTimestamp,
     )
@@ -143,7 +133,7 @@ export class SyncManagerService implements ISyncManagerService {
     try {
       await SendBirdSyncManager.getInstance().reset()
     } catch (e) {
-      handleError(chatErrors.SYNC_MANAGER_RESET_FAILED, e)
+      console.log(e)
     }
   }
 
