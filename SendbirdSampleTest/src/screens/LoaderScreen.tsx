@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react'
 import { Text, View } from 'react-native'
 import { NavigationStackScreenProps } from 'react-navigation-stack'
-import SendBird from 'sendbird'
 
-import { getOrCreateChatUsers } from '~/api/chat'
+import { useSetChatUserDataAndConnect } from '~/facades/chatConnectFacade'
 
 const LoaderScreenController: React.FC<NavigationStackScreenProps> = (props) => {
+  const { getChatUserDataAndConnect, registerPushToken } = useSetChatUserDataAndConnect()
+
   useEffect(() => {
     setTimeout(() => {
       loadData()
@@ -14,40 +15,9 @@ const LoaderScreenController: React.FC<NavigationStackScreenProps> = (props) => 
 
   //TODO: Refactor this
   const loadData = async () => {
-    // gets only first page of all endpoints responses except trainers(all are downloaded here)
-    try {
-      // ########### SENDBIRD ###########
-      // await setupSyncManager(user)
-      const userId = ''
-      const token = ''
-      let _sbToken = ''
-      try {
-        const { data }: any = await getOrCreateChatUsers([userId], token)
-        const loggedUser = data.find((chatUser: any) => !!chatUser.access_token)
-        _sbToken = loggedUser?.access_token || ''
-        console.log('🚀 ~ file: LoaderScreen.tsx ~ line 29 ~ loadData ~ _sbToken', _sbToken)
-      } catch (e) {
-        console.log(e)
-      }
+    await getChatUserDataAndConnect()
 
-      const _sb = new SendBird({ appId: '' })
-      try {
-        const _sendbirdUser = await _sb.connect(userId, _sbToken)
-        console.log(
-          '🚀 ~ file: LoaderScreenController.tsx ~ line 147 ~ loadData ~ _sendbirdUser',
-          _sendbirdUser,
-        )
-        _sb.setForegroundState()
-      } catch (e) {
-        console.log(e)
-      }
-      await new Promise((resolve) => {
-        setTimeout(resolve, 500)
-      })
-      props.navigation.navigate('PlaceholderScreen')
-    } catch (e) {
-      console.log(e)
-    }
+    props.navigation.navigate('ChatList')
   }
 
   return (
