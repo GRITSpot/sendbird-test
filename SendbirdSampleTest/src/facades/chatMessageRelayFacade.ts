@@ -37,7 +37,11 @@ export const useMessageRelay = (options: MessageRelayOptions) => {
   const currentAppState = useRef('active')
 
   const fetch = async (direction: 'prev' | 'next') => {
-    return messageCollection.current?.fetchSucceededMessages(direction)
+    try {
+      await messageCollection.current?.fetchSucceededMessages(direction)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   const fullFetch = async () => {
