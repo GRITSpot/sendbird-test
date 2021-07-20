@@ -112,7 +112,7 @@ export class SyncManagerService implements ISyncManagerService {
       viewpointTimestamp,
     )
     const handler = new SendBirdSyncManager.MessageCollection.CollectionHandler()
-    handler.onMessageEvent = (action, messages) => {
+    handler.onSucceededMessageEvent = (messages, action) => {
       if (handlers[action]) {
         handlers[action](messages)
       }
